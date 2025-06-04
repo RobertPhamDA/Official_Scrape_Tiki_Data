@@ -1,0 +1,6 @@
+apache-airflow
+pandas
+sqlalchemy
+psycopg2-binary
+requests
+beautifulsoup4
