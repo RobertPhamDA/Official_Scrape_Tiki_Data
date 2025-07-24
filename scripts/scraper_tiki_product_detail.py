@@ -2,6 +2,48 @@ import pandas as pd
 import requests
 from sqlalchemy import create_engine
 import os
+import time
+import random
+from sqlalchemy.dialects.postgresql import insert  # import riêng cho PostgreSQL
+from sqlalchemy import Table, MetaData
+
+
+def extract_products_id_tiki():
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'vi-VN,vi;q=0.8,en-US;q=0.5,en;q=0.3',
+    'Referer': 'https://tiki.vn/?src=header_tiki',
+    'x-guest-token': '8jWSuIDBb2NGVzr6hsUZXpkP1FRin7lY',
+    'Connection': 'keep-alive',
+    'TE': 'Trailers',
+    }
+
+    params = {
+        'limit': '48',
+        'include': 'sale-attrs,badges,product_links,brand,category,stock_item,advertisement',
+        'aggregations': '1',
+        'trackity_id': '70e316b0-96f2-dbe1-a2ed-43ff60419991',
+        'category': '1883',
+        'page': '1',
+        'src': 'c1883',
+        'urlKey':  'nha-cua-doi-song',
+    }
+
+    product_id = []
+    for i in range(1, 21):
+        params['page'] = i
+        response = requests.get('https://tiki.vn/api/v2/products', headers=headers, params=params)#, cookies=cookies)
+        if response.status_code == 200:
+            print('request success!!!')
+            for record in response.json().get('data'):
+                product_id.append({'id': record.get('id')})
+        time.sleep(random.randrange(3, 10))
+
+    df = pd.DataFrame(product_id)
+    df_product_id = df.drop_duplicates(subset=['id'])
+    return df_product_id
+
 
 def scraper_tiki_product_detail():
     cookies = {
@@ -66,7 +108,7 @@ def scraper_tiki_product_detail():
         d['short_description'] = json.get('short_description')
         d['price'] = json.get('price')
         d['list_price'] = json.get('list_price')
-        d['price_usd'] = json.get('price_usd')
+        d['price_usd'] = json.get('original_price')
         d['discount'] = json.get('discount')
         d['discount_rate'] = json.get('discount_rate')
         d['review_count'] = json.get('review_count')
@@ -75,20 +117,13 @@ def scraper_tiki_product_detail():
         d['is_visible'] = json.get('is_visible')
         d['stock_item_qty'] = json.get('stock_item').get('qty') if json.get('stock_item') else None
         d['stock_item_max_sale_qty'] = json.get('stock_item').get('max_sale_qty') if json.get('stock_item') else None
-        d['product_name'] = json.get('meta_title')
+        d['product_name'] = json.get('name')
         d['brand_id'] = json.get('brand').get('id') if json.get('brand') else None
         d['brand_name'] = json.get('brand').get('name') if json.get('brand') else None
         return d
 
 
-    db_user = os.getenv("POSTGRES_USER", "airflow")
-    db_pass = os.getenv("POSTGRES_PASSWORD", "airflow")
-    db_host = os.getenv("POSTGRES_HOST", "postgres")
-    db_port = os.getenv("POSTGRES_PORT", "5432")
-    db_name = os.getenv("POSTGRES_DB", "airflow")
-
-    engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-    df_id = pd.read_sql("SELECT id FROM tiki_product_id", engine)
+    df_id = extract_products_id_tiki()
     p_ids = df_id.id.to_list()
     print(p_ids)
     result = []
@@ -112,4 +147,13 @@ def load_to_postgres_tiki_product_detail(df_product: pd.DataFrame):
     db_name = os.getenv("POSTGRES_DB", "airflow")
 
     engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-    df_product.to_sql("tiki_product_detail", engine, if_exists="replace", index=False)
+
+    metadata = MetaData(bind=engine)
+    table = Table('tiki_product_detail', metadata, autoload_with=engine)
+
+    with engine.begin() as conn:
+        for row in df_product.to_dict(orient='records'):
+            stmt = insert(table).values(**row)
+            update_dict = {col.name: stmt.excluded[col.name] for col in table.columns if col.name != 'id'}
+            stmt = stmt.on_conflict_do_update(index_elements=['id'], set_=update_dict)
+            conn.execute(stmt)
