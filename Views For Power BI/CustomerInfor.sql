@@ -1,8 +1,9 @@
 create or replace view CustomerInfor as (
 select
-distinct
 customer_id
-,customer_name
+,min(customer_name) as customer_name
 from 
 tiki_comment_detail tcd
+group by 
+customer_id
 )
