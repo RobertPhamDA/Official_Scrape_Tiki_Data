@@ -23,10 +23,10 @@ def extract_products_id_tiki():
         'include': 'sale-attrs,badges,product_links,brand,category,stock_item,advertisement',
         'aggregations': '1',
         'trackity_id': '70e316b0-96f2-dbe1-a2ed-43ff60419991',
-        'category': '1883',
+        'category': '8322',  # sách
         'page': '1',
-        'src': 'c1883',
-        'urlKey':  'nha-cua-doi-song',
+        'src': 'c8322',
+        'urlKey':  'nha-sach-tiki',
     }
 
     product_id = []

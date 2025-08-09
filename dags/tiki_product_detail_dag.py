@@ -1,9 +1,11 @@
 import sys
-sys.path.append('/opt/airflow')
+sys.path.append('/opt/airflow')  # Đảm bảo Airflow tìm thấy module trong container
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 from scripts.scraper_tiki_product_detail import scraper_tiki_product_detail, load_to_postgres_tiki_product_detail
+import pandas as pd
 
 default_args = {
     "owner": "airflow",
@@ -20,14 +22,14 @@ with DAG(
     tags=["tiki", "products", "ETL"]
 ) as dag:
 
-    def extract(**context):
+    def extract(**kwargs):
         df = scraper_tiki_product_detail()
-        context['ti'].xcom_push(key='products_df', value=df.to_json())
+        df_json = df.to_json(orient="split")  # Chuyển sang định dạng JSON rõ ràng
+        kwargs['ti'].xcom_push(key='products_df', value=df_json)
 
-    def load(**context):
-        from pandas import read_json
-        df_json = context['ti'].xcom_pull(key='products_df', task_ids='extract_data')
-        df = read_json(df_json)
+    def load(**kwargs):
+        df_json = kwargs['ti'].xcom_pull(key='products_df', task_ids='extract_data')
+        df = pd.read_json(df_json, orient="split")  # Cần đúng định dạng với lúc push
         load_to_postgres_tiki_product_detail(df)
 
     extract_task = PythonOperator(
