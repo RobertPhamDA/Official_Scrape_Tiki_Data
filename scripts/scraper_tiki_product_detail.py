@@ -108,7 +108,7 @@ def parser_product(json):
         'discount': json.get('discount'),
         'discount_rate': json.get('discount_rate'),
         'review_count': json.get('review_count'),
-        'order_count': json.get('order_count'),
+        'order_count': json.get('all_time_quantity_sold'),
         'inventory_status': json.get('inventory_status'),
         'is_visible': json.get('is_visible'),
         'stock_item_qty': safe_get(json, 'stock_item', 'qty'),
