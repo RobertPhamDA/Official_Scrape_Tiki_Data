@@ -9,6 +9,7 @@ id
 ,price_usd
 ,discount
 ,discount_rate
+,order_count
 ,review_count
 ,inventory_status
 ,stock_item_qty
