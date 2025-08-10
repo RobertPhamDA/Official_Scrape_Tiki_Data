@@ -11,9 +11,11 @@ id
 ,discount_rate
 ,review_count
 ,inventory_status
-,is_visible
 ,stock_item_qty
 ,stock_item_max_sale_qty
-,brand_id
-from tiki_product_detail tpd 
+,publisher_id
+,category_item->>0 AS category_id
+,author_id
+from tiki_product_detail,
+    LATERAL jsonb_array_elements(categories) AS category_item
 )
