@@ -8,39 +8,15 @@ import random
 
 
 def extract_products_id_tiki():
-    headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'vi-VN,vi;q=0.8,en-US;q=0.5,en;q=0.3',
-    'Referer': 'https://tiki.vn/?src=header_tiki',
-    'x-guest-token': '8jWSuIDBb2NGVzr6hsUZXpkP1FRin7lY',
-    'Connection': 'keep-alive',
-    'TE': 'Trailers',
-    }
+    db_user = os.getenv("POSTGRES_USER", "airflow")
+    db_pass = os.getenv("POSTGRES_PASSWORD", "airflow")
+    db_host = os.getenv("POSTGRES_HOST", "postgres")
+    db_port = os.getenv("POSTGRES_PORT", "5432")
+    db_name = os.getenv("POSTGRES_DB", "airflow")
 
-    params = {
-        'limit': '48',
-        'include': 'sale-attrs,badges,product_links,brand,category,stock_item,advertisement',
-        'aggregations': '1',
-        'trackity_id': '70e316b0-96f2-dbe1-a2ed-43ff60419991',
-        'category': '8322',  # sách
-        'page': '1',
-        'src': 'c8322',
-        'urlKey':  'nha-sach-tiki',
-    }
-
-    product_id = []
-    for i in range(1, 21):
-        params['page'] = i
-        response = requests.get('https://tiki.vn/api/v2/products', headers=headers, params=params)#, cookies=cookies)
-        if response.status_code == 200:
-            print('request success!!!')
-            for record in response.json().get('data'):
-                product_id.append({'id': record.get('id')})
-        time.sleep(random.randrange(3, 10))
-
-    df = pd.DataFrame(product_id)
-    df_product_id = df.drop_duplicates(subset=['id'])
+    engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
+    query = "SELECT DISTINCT id AS product_id FROM tiki_product_detail"
+    df_product_id = pd.read_sql(query, engine)
     return df_product_id
 
 def extract_comments_tiki():
