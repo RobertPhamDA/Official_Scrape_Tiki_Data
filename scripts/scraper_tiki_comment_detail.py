@@ -15,7 +15,7 @@ def extract_products_id_tiki():
     db_name = os.getenv("POSTGRES_DB", "airflow")
 
     engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-    query = "SELECT DISTINCT id AS product_id FROM tiki_product_detail"
+    query = "SELECT DISTINCT id FROM tiki_product_detail"
     df_product_id = pd.read_sql(query, engine)
     return df_product_id
 
@@ -118,4 +118,4 @@ def load_to_postgres_tiki_comment_detail(df_comment: pd.DataFrame):
     db_name = os.getenv("POSTGRES_DB", "airflow")
 
     engine = create_engine(f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}")
-    df_comment.to_sql("tiki_comment_detail", engine, if_exists="replace", index=False)
+    df_comment.to_sql("tiki_comment_detail", engine, if_exists="append", index=False)
