@@ -4,3 +4,4 @@ this is sample text
 How to handle conflict at work
 ### Is this true
 
+![Project Screenshot](Images/Screenshot%202025-08-14%20110436.png)
