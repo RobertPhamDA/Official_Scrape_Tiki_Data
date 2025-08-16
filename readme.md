@@ -8,7 +8,7 @@ Mục tiêu của dự án là xây dựng một hệ thống tự động để
 
 **Dashboard Power BI Demo:**
 
-![Dashboard](https://user-images.githubusercontent.com/109314051/235266850-848e0261-299f-4df4-a15d-8db40e53a25d.png)
+![alt text](Images/demo.png)
 
 ## 2. Các Công Nghệ Sử Dụng
 
@@ -89,6 +89,7 @@ Mở file `.env` và tùy chỉnh các giá trị (nếu cần). Các giá trị
 Mở terminal và chạy lệnh sau. Lệnh này sẽ xây dựng (build) các image cần thiết và khởi tạo các container cho Airflow và PostgreSQL.
 ```bash
 docker-compose up -d```
+
 Quá trình này có thể mất vài phút trong lần chạy đầu tiên.
 
 **Bước 4: Truy cập Airflow UI**
