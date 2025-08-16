@@ -6,6 +6,14 @@
 
 Mục tiêu của dự án là xây dựng một hệ thống tự động để theo dõi và phân tích các chỉ số kinh doanh quan trọng như: số lượng sản phẩm, tổng số đơn hàng đã bán, doanh thu, giá trung bình, và số lượng đánh giá. Các thông tin này sau đó được tổng hợp và hiển thị trên một dashboard Power BI tương tác, giúp người dùng dễ dàng nắm bắt và đưa ra quyết định.
 
+**Run DAG via Airflow:**
+
+![alt text](Images/Screenshot_airflowproduct.png)
+
+
+![alt text](Images/Screenshot_airflowcomment.png)
+
+
 **Dashboard Power BI Demo:**
 
 ![alt text](Images/demo.png)
