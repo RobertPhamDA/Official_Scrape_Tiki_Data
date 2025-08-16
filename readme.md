@@ -41,9 +41,9 @@ Toàn bộ hệ thống được đóng gói trong các container Docker, giúp 
 
 ```mermaid
 graph TD
-    %% Bước 1: Định nghĩa tất cả các kết nối trước
+    %% Bước 1: Định nghĩa tất cả các kết nối trước (đã sửa lỗi cú pháp)
     A[Apache Airflow] -- "Lưu trữ metadata, X-Coms" --> P[PostgreSQL Database]
-    A -- "Thực thi tác vụ cào dữ liệu" -->|requests| T(Tiki.vn API)
+    A -- "Thực thi tác vụ (requests)" --> T(Tiki.vn API)
     T -- "Trả về dữ liệu JSON" --> A
     A -- "Ghi dữ liệu sách" --> P
     P -- "Kết nối qua cổng 5432" --> BI[Power BI Desktop]
