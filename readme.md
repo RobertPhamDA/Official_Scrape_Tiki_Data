@@ -88,7 +88,8 @@ Mở file `.env` và tùy chỉnh các giá trị (nếu cần). Các giá trị
 
 Mở terminal và chạy lệnh sau. Lệnh này sẽ xây dựng (build) các image cần thiết và khởi tạo các container cho Airflow và PostgreSQL.
 ```bash
-docker-compose up -d```
+docker-compose up -d
+```
 
 Quá trình này có thể mất vài phút trong lần chạy đầu tiên.
 
