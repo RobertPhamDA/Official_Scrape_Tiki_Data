@@ -41,25 +41,26 @@ Toàn bộ hệ thống được đóng gói trong các container Docker, giúp 
 
 ```mermaid
 graph TD
-    subgraph "Máy Chủ (Local/Server)"
-        subgraph "Docker Compose"
-            direction LR
-            A[Apache Airflow]
-            P[PostgreSQL Database]
+    %% Bước 1: Định nghĩa tất cả các kết nối trước
+    A[Apache Airflow] -- "Lưu trữ metadata, X-Coms" --> P[PostgreSQL Database]
+    A -- "Thực thi tác vụ cào dữ liệu" -->|requests| T(Tiki.vn API)
+    T -- "Trả về dữ liệu JSON" --> A
+    A -- "Ghi dữ liệu sách" --> P
+    P -- "Kết nối qua cổng 5432" --> BI[Power BI Desktop]
+    BI -- "Hiển thị báo cáo" --> U[Người Dùng]
 
-            A -- "Lưu trữ metadata, X-Coms" --> P
-            A -- "Thực thi tác vụ cào dữ liệu" -->|requests| T(Tiki.vn API)
-            T -- "Trả về dữ liệu JSON" --> A
-            A -- "Ghi dữ liệu sách" --> P
-        end
+    %% Bước 2: Bây giờ mới nhóm các node đã tồn tại vào subgraph
+    subgraph "Máy Chủ (Local/Server)"
+        direction LR
+        A
+        P
+        T
     end
 
     subgraph "Máy Người Dùng"
-        BI[Power BI Desktop]
+        BI
+        U
     end
-
-    P -- "Kết nối qua cổng 5432" --> BI
-    BI -- "Hiển thị báo cáo" --> U[Người Dùng]
 ```
 
 ## 4. Hướng Dẫn Cài Đặt và Triển Khai
